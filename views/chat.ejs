@@ -1,0 +1,290 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel='stylesheet' href='/stylesheets/chat_style.css'/>
+ <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.orange-indigo.min.css">
+    <title>Socket.IO chat</title>
+    <style>
+      /** { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }*/
+    </style>
+  </head>
+  <body>
+    <!-- <div style="float:left">
+      <input id="new_talk_to" type="text">
+      <button onclick="create_talk_to()"><span class="glyphicon glyphicon-plus"</button>
+      <ul id="users_list" class="list-group"></ul>
+    </div> -->
+    <div class="row">
+
+
+
+    <!-- display chat-->
+    <div class="col-md-8 msg-wrapper">
+      <div class="msg-wrapper-header">
+        <div class="chat-user-meta">
+            <span id="send_to" class="user-name"> Server</span>
+        </div>
+      </div>
+      <div class="msg-wrapper-body">
+        <div class="msg-container" id="server">
+            <div class="msg-single">
+              <div class="msg-conatiner">
+              <div class="actual-msg">Welcome to Chat</div>
+              <span class="msg-meta">Just Now</span>
+              </div>
+            </div>
+        </div>
+        </div>
+
+
+        <div class="send-container">
+        <form id="message-form" action="#" style="padding-top:10px">
+              <!--<input id='to' autocomplete="off" placeholder='send to' /> -->
+              <input class="form-control send-msg-text" type="text" id="message">
+              <!--<label class="mdl-textfield__label" for="message">Message...</label>-->
+              <button  class="send-btn" id="submit" type="submit" style="display:none" disabled></button><label for='submit'><span class="send-btn"> <i class="fa fa-paper-plane-o fa-2x" aria-hidden="true"></i></span></label>
+        </form>
+        </div>
+      </div>
+
+
+
+      <!-- chat users list  starts-->
+      <div class="col-md-4  list-wrapper">
+        <div class="col-md-12 list-wrapper-header" >
+
+      <!--
+        Displaying profile Image
+      -->
+        <div class="profile_pic">
+          <img class="img-circle" src="http://localhost:3000/images/user.png">
+        </div>
+        <!--
+          Link for modal and for Logout starts
+        -->
+        <div class="icon-set">
+          <a id="create_new_chat" Title="Start New chat" data-toggle="modal" data-target="#myModal">
+            <span><i class="fa fa-plus fa-lg" aria-hidden="true"></i></span>
+          </a>
+          <a Title="Logout" href="/user/logout">
+            <span><i class="fa fa-power-off" aria-hidden="true"></i></span>
+          </a>
+        </div>
+        <!--
+          Link for modal and for Logout ends
+        -->
+
+        <!--
+          Showing online status
+        -->
+        <div class="user-meta">
+          <span class="user-name"><%=username %></span>
+          <span class="user-status">online</span>
+        </div>
+      </div>
+      <div class="userlist">
+
+        <!--
+          Using ng-repeat to show users starts
+        -->
+      </div>
+    </div>
+
+
+
+    <div id="myModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+      <!-- Modal content starts-->
+      <div class="modal-content">
+
+        <!-- Modal header starts-->
+        <div class="modal-header">
+          <a type="button" class="close" data-dismiss="modal">&times;</a>
+          <p class="modal-title">Start new chat</p>
+        </div>
+        <!-- Modal header ends-->
+
+
+        <!-- Modal Body starts-->
+        <div class="modal-body">
+
+          <!--
+            Displaying start new chat list starts
+          -->
+          <div class="newChat" ng-repeat="singleOfflineUser in RecentUserList"
+            ng-class="(hightlight_id==singleOfflineUser.id ? 'hightlight_user_class' :'')"
+            id='modal_user_{{singleOfflineUser.id}}'
+            >
+
+            <div class="userlist-user-meta">
+              <!--
+                Displaying User details
+-->
+            </div>
+          </div>
+          <!--
+            Displaying start new chat list ends
+          -->
+
+          </div>
+          <!-- Modal Body ends-->
+
+      </div>
+      <!-- Modal content ends-->
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+    <script src="/javascripts/getUsers.js"></script>
+    <script>
+
+    var screen = new Screen();
+    var users = [];
+    var talk_to = "";
+
+    var selectedUser = function(name){
+      alert("your are talking to "+name);
+      talk_to = name;
+      document.getElementById('send_to').textContent = talk_to;
+      document.getElementById(name+'_container').className += ' active';
+      screen.changeScreen(name);
+      document.getElementById('server').style.display="none";
+      document.getElementById('submit').removeAttribute('disabled');
+    };
+
+
+// add a user in the chat-list
+    var create_talk_to = function(message_user_name){
+        push_talk_to(message_user_name);
+        screen.addScreen(message_user_name);
+    };
+
+
+    var push_talk_to = function(message_user_name){
+      if(users.indexOf(message_user_name) < 0){
+        //$('#users_list').append($('<li>').text(msg.split(' ')[0]));
+        var user_container = document.createElement('div');
+        user_container.addEventListener("click",function(){
+          selectedUser(message_user_name);
+        });
+        user_container.id = message_user_name + "_container";
+        user_container.innerHTML = `<div class="userlist-single">
+          <div class="userlist-user-meta"><img class="img-circle" src="http://localhost:3000/images/user.png"/>
+            <span title="{{singleuser.socketId}}" class="userlist-userName">${message_user_name}</span></div></div>`;
+        $('.userlist').append(user_container);
+        users.push(message_user_name);
+      }
+    };
+
+    function Screen() {
+      this.current = "";
+      this.screens = {};
+      this.changeScreen = function(newScreen) {
+        if(this.current !== ""){
+          //remove active from current user
+
+          document.getElementById(this.current+'_container').classList.remove('active');
+          this.screens[this.current].style.display="none";
+        }
+        // show show
+        this.current = newScreen;
+        this.screens[this.current].style.display="block";
+      };
+      this.addScreen = function(newScreen) {
+        if (!(newScreen in this.screens)) {
+          var temp = document.createElement('div');
+          temp.innerHTML = `<div id="${newScreen}" class="msg-container"></div>`;
+          temp.style.display = "none";
+          $('.msg-wrapper-body').append(temp);
+          this.screens[newScreen] = temp;
+        }
+      };
+    };
+
+
+
+
+
+    var createMessage = function(msg, sent, whom){
+      var container = document.createElement('div');
+      if(sent){
+        container.innerHTML = `<div class="msg-single"
+        style="float: right">
+          <div class="msg-conatiner">
+          <div class="actual-msg">${msg}</div>
+          <span class="msg-meta">just now</span>
+          </div>
+        </div>`;
+      } else{
+        container.innerHTML = `<div class="msg-single"
+        style="float: left">
+          <div class="msg-conatiner">
+          <div class="actual-msg">${msg}</div>
+          <span class="msg-meta">just now</span>
+          </div>
+        </div>`;
+      }
+
+
+      document.getElementById(whom).append(container);
+    };
+
+    var check_message_wrapper = function(message_user_name){
+      if(!(message_user_name in screen.screens)){
+        screen.addScreen(message_user_name);
+      }
+    }
+
+
+      $(function () {
+        var socket = io("localhost:4000");
+        socket.emit('join', { username: "<%= username %>"});
+
+        $('form').submit(function(){
+          socket.emit('chat message', {msg: $('#message').val(), from: "<%= username %>", to: talk_to/*$('#to').val()*/}); // $('#m').val()
+          createMessage($('#message').val(), true, talk_to);
+          $('#message').val('');
+          return false;
+        });
+
+
+
+        socket.on('chat message', function(msg){
+          var message_user_name = msg.split(' ')[0];
+          push_talk_to(message_user_name);
+
+          //$('#messages').append($('<li>').text(msg));
+          if(!(message_user_name in screen.screens)){
+            screen.addScreen(message_user_name);
+          }
+          createMessage(msg.split(':')[1],false, message_user_name);
+          // var container = document.createElement('div');
+          // container.innerHTML = '<div class="message-container">' +
+          //                       '<div class="spacing"></div>' +
+          //                       '<div class="message"></div>' +
+          //                       '<div class="name"></div></div>'+ '<div style="clear:both"></div>';
+          // document.getElementById(talk_to).append(container);
+          // container.querySelector('.message-container').style.cssFloat='left';
+          // container.querySelector('.name').textContent= msg.split(' ')[0];
+          // container.querySelector('.message').textContent = msg.split(':')[1];
+        });
+      });
+    </script>
+    <!-- <%= username %>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id='to' autocomplete="off" placeholder='send to' />
+      <input id="message" autocomplete="off" />
+      <button>Send</button>
+    </form> -->
+
+
+  </body>
+</html>

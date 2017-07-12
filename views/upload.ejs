@@ -1,0 +1,33 @@
+<!--<form id="uploadform" action="/upload" method="post" enctype="multipart/form-data">
+    <img id="blah" hidden src="#" alt="your image" width="240" height="240"/>
+    <ul>
+      <li>Upload:      <input type='file' id="imgInp" name='imgInp' /></li>
+      <li>Date:        <input type='text' id='date' name='date' size="20" line-height: "18px"/></li>
+      <li>Tittle:      <input type='text' id='title' name='title' size="30" line-height: "18px"/></li>
+      <li>Description: <input type='text' id='description' name='description' size="100" line-height: "36px"/></li>
+    </ul>
+    <input type="submit" class="btn btn-success" value="submit" id="submitButton">
+</form> -->
+<div style="text-align:center;margin-top:5%">
+  <button hidden id="reset_btn" class="button4" onclick="resetPhoto()">rechoose</button>
+</div>
+<form class="box has-advanced-upload upload" action="/upload" method="POST" enctype="multipart/form-data">
+  <div id="highest_div" style="text-align:center">
+    <div class="box__input">
+   <input id="chooseFile" type="file" name="imgInp" class="inputfile" ></input>
+   <label class="upload" for="chooseFile"><img id="label_img" src="http://localhost:3000/images/upload.gif" alt="upload"><br>
+     <div id="upload_text">
+     <strong>Choose an image</strong><span class="box__dragndrop"> or drag it here</span>.</label>
+ </div>
+ </div>
+  <div style="padding: 10px 10px">
+   <input hidden id="description" type="text" name="description" placeholder="description of the image"></input>
+   <input hidden  class="button4" id="submit" type="submit" name="submit" value="submit"></input>
+ </div>
+  </form>
+  <div style="text-align:center">
+</div>
+</div>
+
+<script type="text/javascript" src="javascripts/uploadfile.js">
+</script>

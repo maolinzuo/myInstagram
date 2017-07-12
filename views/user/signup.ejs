@@ -1,0 +1,26 @@
+<div class="row">
+    <div class="col-md-4 col-md-offset-4">
+        <h1 style="padding-top:25%; text-align: center">Sign Up</h1>
+        <% if (hasErrors) { %>
+            <div class="alert alert-danger">
+                <% messages.forEach(function(message) {%>
+                  <div><%= message %></div>
+                <% }); %>
+            </div>
+        <% } %>
+        <form action="" method="post">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control">
+            </div>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div style="text-align: center">
+              <button type="submit" class="btn btn-primary">Sign Up</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,87 @@
+<% productChunks.forEach(function(eles) { %>
+  <% eles.forEach(function(ele) { %>
+      <div class="thumbnail container" style="width:40%;margin-top:50px;">
+        <nav class="navbar navbar-default" style="background-color: white; border:none; padding-left:20px; padding-top:10px;padding-bottom-10px;">
+          <div class="navbar-header"><span><i class="fa fa-user-o" aria-hidden="true" style="margin-right: 10px"></i></span><%= ele.username %></div>
+        </nav>
+        <div style="width:cover; border:none; border-radix: 10px;">
+          <img src="<%= ele.imagePath %>"  style="width:100%; border: none">
+        </div>
+        <div class="caption">
+
+          <p style="padding:3px"><%= ele.description %></p>
+          <!-- <p><%= ele._id %></p> -->
+          <p>
+            <!-- <a href="#" class="btn btn-primary" role="button"> comment</a> -->
+            <% if (ele.thumbups.indexOf(username) >= 0) { %>
+              <a class="btn btn-success" role="button"><i class="fa fa-heart fa-lg" aria-hidden="true" style="color:red; margin-right:5px"></i><%= ele.thumbups.length %> likes</a>
+            <% } else { %>
+              <a id="putups<%= ele._id %>" href="javascript:putUps('<%= ele._id %>');" class="btn btn-success" role="button"><i class="fa fa-heart-o fa-lg" aria-hidden="true" style=" margin-right:5px"></i><%= ele.thumbups.length %> likes</a>
+            <% } %>
+          </p>
+          <div id="comments<%= ele._id %>">
+            <% ele.comments.forEach(function(comment) { %>
+              <p style="padding:3px"><strong><%= comment.username %>:</strong> <%= comment.description %></p>
+            <% }); %>
+          </div>
+          <div class="row" style="border-top: 1px solid #f5f5f5;">
+              <div class="input-group">
+                <input id="comment<%= ele._id %>" type="text" class="comment_text" placeholder=" Add a comment" >
+                <span class="input-group-btn" style="margin-left:0px">
+                  <a id="addcomment<%= ele._id %>" href="javascript:addComment('<%= ele._id %>');" class="btn btn-default" role="button"><i class="fa fa-comment-o fa-lg" aria-hidden="true"></i></a>
+                </span>
+              </div><!-- /input-group -->
+          </div><!-- /.row -->
+
+        </div>
+      </div>
+  <% }) %>
+<% }) %>
+
+<script type="text/javascript">
+    var username = '<%= username %>';
+
+    function putUps(oid){
+      var params ={
+                oid: oid,
+                username: username
+            };
+            $.ajax({
+                data: params,
+                url: 'helper/thumbups',
+                type:'post',
+                jsonpCallback: 'callback',
+                success: function(data){
+                  console.log(data);
+                  // $('#putups'+oid).attr("title",data+'个赞');
+                  $('#putups'+oid).html("<i class=\"fa fa-heart fa-lg\" aria-hidden=\"true\" style=\"color:red; margin-right:5px\"></i> " + data + " likes");  // 这个地方你帮我改一下。。。怎么能把大拇指图标加进来
+                },
+                error: function(jqXHR, textStatus, errorThrown){
+                    alert('error: ' + textStatus + " " + errorThrown);
+                }
+            });
+    }
+
+    function addComment(oid){
+      var params ={
+                oid: oid,
+                username: username,
+                description: $('#comment'+oid).val()
+            };
+            $('#comment'+oid).val('');
+            $.ajax({
+                data: params,
+                url: 'helper/addcomment',
+                type:'post',
+                jsonpCallback: 'callback',
+                success: function(data){
+                  $('#comments'+oid).append('<p style="padding:3px"><strong>'+data.split(":")[0]+':</strong>' + data.split(":")[1]+'</p>');
+                },
+                error: function(jqXHR, textStatus, errorThrown){
+                    alert('error: ' + textStatus + " " + errorThrown);
+                }
+            });
+    }
+
+
+</script>
