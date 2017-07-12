@@ -27,6 +27,7 @@ app.use(partials());
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.set('port', process.env.PORT || 3000);
 
 // uncomment after placing your favicon in /public
 // app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -133,9 +134,10 @@ http.listen(process.env.PORT || 4000, function(){
   console.log('listening on *:' + process.env.PORT);
 });
 
-app.listen(process.env.PORT || 3000, function(){
+/*app.listen(process.env.PORT || 3000, function(){
   console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
 });
+*/
 module.exports = app;
 
 // get time
