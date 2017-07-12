@@ -129,10 +129,12 @@ io.on('connection', function(socket){
   });
 });
 
-http.listen(4000, function(){
-  console.log('listening on *:4000');
+http.listen(process.env.PORT||4000, function(){
+  console.log('listening on *:' + process.env.PORT);
 });
 
+
+app.listen(process.env.PORT || 3000);
 module.exports = app;
 
 // get time
